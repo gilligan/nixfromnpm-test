@@ -1,4 +1,4 @@
-{ buildNodePackage, nodePackages, pkgs }:
+{ brokenPackage, buildNodePackage, nodePackages, pkgs }:
 buildNodePackage {
     name = "recast";
     version = "0.10.33";
@@ -9,7 +9,10 @@ buildNodePackage {
     deps = with nodePackages; [
       source-map_0-5-3
       private_0-1-6
-      esprima-fb_15001-1001-0-dev-harmony-fb
+      (brokenPackage {
+        name = "esprima-fb";
+        reason = "NoMatchingVersion >=15001.1001.0-dev-harmony-fb <15001.1002.0";
+      })
       ast-types_0-8-12
     ];
     meta = {

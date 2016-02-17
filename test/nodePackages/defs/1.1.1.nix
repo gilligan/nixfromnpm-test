@@ -1,4 +1,4 @@
-{ buildNodePackage, nodePackages, pkgs }:
+{ brokenPackage, buildNodePackage, nodePackages, pkgs }:
 buildNodePackage {
     name = "defs";
     version = "1.1.1";
@@ -15,7 +15,10 @@ buildNodePackage {
       tryor_0-1-2
       alter_0-2-0
       stringset_0-2-1
-      esprima-fb_15001-1001-0-dev-harmony-fb
+      (brokenPackage {
+        name = "esprima-fb";
+        reason = "NoMatchingVersion >=15001.1001.0-dev-harmony-fb <15001.1002.0";
+      })
       ast-traverse_0-1-1
     ];
     meta = {

@@ -1,4 +1,4 @@
-{ buildNodePackage, nodePackages, pkgs }:
+{ brokenPackage, buildNodePackage, nodePackages, pkgs }:
 buildNodePackage {
     name = "regenerator";
     version = "0.8.40";
@@ -10,7 +10,10 @@ buildNodePackage {
       commoner_0-10-4
       defs_1-1-1
       private_0-1-6
-      esprima-fb_15001-1001-0-dev-harmony-fb
+      (brokenPackage {
+        name = "esprima-fb";
+        reason = "NoMatchingVersion >=15001.1001.0-dev-harmony-fb <15001.1002.0";
+      })
       recast_0-10-33
       through_2-3-8
     ];
