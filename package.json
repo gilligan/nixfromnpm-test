@@ -1,0 +1,67 @@
+{
+  "name": "hc-react-stack-pages",
+  "version": "0.0.0",
+  "description": "Web pages for holidaycheck based on react.js & flux stack.",
+  "main": "index.js",
+  "private": true,
+  "config": {
+    "galen": "./node_modules/galenframework/bin/galen test -Dgalen.config.file=.galenrc -Dfile.encoding=UTF8 --parallel-tests 4",
+    "nightwatch": {
+      "environments": {
+        "mobile": "iphone,ipad",
+        "desktop": "chrome-43.0,firefox-38.0,internet-explorer-9.0,internet-explorer-11.0"
+      }
+    }
+  },
+  "scripts": {
+    "start": "node index.js",
+    "create:assets:file": "cp ./assets/assets-template.json ./build/assets.json",
+    "create:directories": "mkdir -p ./build/assets",
+    "create:directories:e2e": "mkdir -p ./build/e2e/logs",
+    "assets:prepare": "npm run create:directories && npm run create:assets:file",
+    "build": "npm run create:directories && UV_THREADPOOL_SIZE=128 webpack --bail",
+    "clean": "rm -rf build",
+    "dev": "npm run assets:prepare && webpack --watch & FACEBOOK_DEV_APP_ID=1062753283759517  node-dev .",
+    "lint": "eslint --ext '.jsx' --ext '.js' --ext '.md' --cache . && ./scripts/markdownlint.js && sass-lint -v",
+    "lint-modified": "./scripts/lint-modified.sh",
+    "prestart": "npm run build",
+    "check-environment": "babel-node test/sanity/languageSpecificHosts.js",
+    "pretest": "npm run lint && npm run check-environment",
+    "test": "npm run test:unit:with-coverage && npm run test:functional",
+    "test:unit": "NODE_ENV=test mocha test/unit --opts test/unit/mocha.opts",
+    "test:unit:with-coverage": "NODE_ENV=test istanbul cover _mocha test/unit -- --opts test/unit/mocha.opts && istanbul check-coverage",
+    "test:unit:watch": "npm run test:unit -- --watch --reporter min",
+    "pretest:functional": "npm run assets:prepare",
+    "test:functional": "NODE_ENV=test mocha test/functional --opts test/functional/mocha.opts",
+    "pretest:contract": "node_modules/pact-mock-service/node_modules/.bin/pact-mock-service start --port 1234 --pact-dir build/pacts --pact-specification-version 2.0.0",
+    "test:contract": "NODE_ENV=test mocha test/contract --opts test/contract/mocha.opts || (npm run posttest:contract; exit 1)",
+    "posttest:contract": "node_modules/pact-mock-service/node_modules/.bin/pact-mock-service stop --port 1234",
+    "test:visual": "npm run test:visual:layout",
+    "test:visual:layout": "$npm_package_config_galen test/visual/suites/local-layout.test --htmlreport 'build/test-output/visual/spec'",
+    "test:visual:dump": "$npm_package_config_galen test/visual/suites/dump.test --htmlreport 'build/test-output/visual/dump'",
+    "test:visual:sauce:dump": "$npm_package_config_galen test/visual/suites/sauce-dump.test --htmlreport 'build/test-output/visual/dump' -DsauceUser=$SAUCE_USERNAME -DsauceKey=$SAUCE_ACCESS_KEY",
+    "test:visual:sauce:dump:with-tunnel": "sc-run --id \"${BUILD_TAG}\" npm run test:visual:sauce:dump",
+    "test:visual:regression": "$npm_package_config_galen test/visual/suites/regression.test --htmlreport 'build/test-output/visual/regression'",
+    "test:visual:sauce:regression": "$npm_package_config_galen test/visual/suites/sauce-regression.test --htmlreport 'build/test-output/visual/regression' -DsauceUser=$SAUCE_USERNAME -DsauceKey=$SAUCE_ACCESS_KEY",
+    "test:visual:sauce:regression:with-tunnel": "sc-run --id \"${BUILD_TAG}\" npm run test:visual:sauce:regression",
+    "test:visual:sauce:layout": "$npm_package_config_galen test/visual/suites/sauce-layout.test --htmlreport 'build/test-output/visual/spec' -DsauceUser=$SAUCE_USERNAME -DsauceKey=$SAUCE_ACCESS_KEY",
+    "test:visual:sauce:layout:with-tunnel": "sc-run --id \"${BUILD_TAG}\" npm run test:visual:sauce:layout",
+    "prenightwatch": "npm run create:directories:e2e",
+    "nightwatch": "nightwatch --config test/e2e/nightwatch.js",
+    "test:e2e": "npm run nightwatch -- --env local",
+    "test:e2e:desktop": "npm run nightwatch -- --env $npm_package_config_nightwatch_environments_desktop",
+    "test:e2e:mobile": "npm run nightwatch -- --env $npm_package_config_nightwatch_environments_mobile",
+    "test:e2e:all": "npm run nightwatch -- --env $npm_package_config_nightwatch_environments_desktop,$npm_package_config_nightwatch_environments_mobile",
+    "test:e2e:sauce:desktop": "sc-run --id \"${BUILD_TAG}\" npm run test:e2e:desktop",
+    "test:e2e:sauce:mobile": "sc-run --id \"${BUILD_TAG}\" npm run test:e2e:mobile",
+    "test:e2e:sauce:all": "sc-run --id \"${BUILD_TAG}\" npm run test:e2e:all"
+  },
+  "pre-commit": "lint-modified",
+  "repository": {
+    "type": "git",
+    "url": "git@github.hc.ag:dragon/hc-react-stack-pages.git"
+  },
+  "dependencies": {
+    "babel": "5.8.23"
+  }
+}
